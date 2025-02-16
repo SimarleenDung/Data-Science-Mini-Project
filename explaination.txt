@@ -1,0 +1,7 @@
+When you run my code, you will find two excels. The first is a combaination of all samples.It has all of colomuns in two files and add age by indexing the mastersheet.
+The sceond is similar with master sheet. I make an aggregation which similar with what tableau did when you put fields into row.
+To be specific,you can see following list. I show what I did and why.
+Max（Diameter）：I took the 95th quantile of this value in each excel to remove outliers and explore the upper bound of the diameter
+Min(Diameter):I took the 5th quintile of the value in each excel to remove outliers and explore the infimum of the diameter
+Age(Ma):Index the age of each excel according to Mastersheet
+Elongation, shape factor, Sphericity :These feature is estimated for each group of samples using the mean value.
