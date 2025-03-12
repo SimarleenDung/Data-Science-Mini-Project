@@ -1,0 +1,80 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.preprocessing import MinMaxScaler
+from scipy.stats import linregress
+
+# Load and process data
+df_sorted['Age_Ma'] = pd.to_numeric(df_sorted['Age_Ma'], errors='coerce')
+
+# Define column groups
+size_columns = ['Max_Diameter', 'Min_Diameter']
+other_columns = ['Elongation', 'Shape Factor', 'Sphericity']
+
+# Group by 'Age_Ma' and calculate the mean for each group
+size_trends = df_sorted.groupby('Age_Ma')[size_columns].mean().reset_index()
+other_trends = df_sorted.groupby('Age_Ma')[other_columns].mean().reset_index()
+
+# Apply rolling mean to smooth fluctuations (window size = 10)
+size_trends[size_columns] = size_trends[size_columns].rolling(window=10, min_periods=1).mean()
+other_trends[other_columns] = other_trends[other_columns].rolling(window=10, min_periods=1).mean()
+
+# Normalize other parameters (Elongation, Shape Factor, Sphericity) for fair comparison
+scaler = MinMaxScaler()
+other_trends[other_columns] = scaler.fit_transform(other_trends[other_columns])
+
+# Create Figure with Two Subplots (with shared x-axis)
+fig, axes = plt.subplots(nrows=2, figsize=(14, 8), sharex=True)
+
+# ---- PLOT 1: Trends in Size ----
+axes[0].plot(size_trends['Age_Ma'], size_trends['Max_Diameter'], color='blue', label='Max Diameter')
+axes[0].plot(size_trends['Age_Ma'], size_trends['Min_Diameter'], color='orange', label='Min Diameter')
+
+axes[0].set_title('Trends in Size Over Time')
+axes[0].set_ylabel('Diameter (µm)')
+axes[0].legend()
+
+# ---- PLOT 2: Trends in Other Parameters ----
+ax1 = axes[1]  # Primary Y-axis
+ax2 = ax1.twinx()  # Secondary Y-axis
+
+# Sphericity on primary Y-axis
+sns.lineplot(data=other_trends, x='Age_Ma', y='Sphericity', label='Sphericity', color='purple', alpha=0.7, ax=ax1)
+ax1.set_ylabel('Sphericity (Normalized)', color='purple')
+ax1.tick_params(axis='y', labelcolor='purple')
+
+# Secondary Y-axis for Elongation and Shape Factor
+sns.lineplot(data=other_trends, x='Age_Ma', y='Elongation', label='Elongation', color='green', alpha=0.7, ax=ax2)
+sns.lineplot(data=other_trends, x='Age_Ma', y='Shape Factor', label='Shape Factor', color='red', alpha=0.7, ax=ax2)
+
+ax2.set_ylabel('Elongation / Shape Factor (Normalized)', color='red')
+ax2.tick_params(axis='y', labelcolor='red')
+
+# Labels and Legends for the second plot
+ax1.set_title('Smoothed Trends in Other Parameters Over Time')
+axes[1].set_xlabel('Age (Ma)')
+ax1.legend(loc='upper left')
+ax2.legend(loc='upper right')
+
+# Show the plot
+plt.tight_layout()  # Ensures subplots don't overlap
+plt.show()
+
+# Trend Analysis: Calculate slopes (linear regression) for comparison
+def calculate_slope(df, columns):
+    slopes = {}
+    for column in columns:
+        slope, intercept, r_value, p_value, std_err = linregress(df['Age_Ma'], df[column])
+        slopes[column] = slope
+    return slopes
+
+# Calculate slopes for size and other parameters
+size_slopes = calculate_slope(size_trends, size_columns)
+other_slopes = calculate_slope(other_trends, other_columns)
+
+print("\nSlopes of Size Parameters:")
+print(size_slopes)
+
+print("\nSlopes of Other Parameters:")
+print(other_slopes)
+
