@@ -1,0 +1,35 @@
+Dominant Period Detection (FFT Analysis):
+
+Load time series data from an Excel file.
+
+Check whether the time intervals are uniform. If not, interpolate the data to create a uniformly spaced time series.
+
+For each feature (e.g., maximum diameter, elongation):
+
+Detrend and normalize the data.
+
+Perform FFT to compute the power spectrum.
+
+Identify the dominant periodicity (the period with the maximum spectral power).
+
+Plot the power spectrum and highlight the dominant period.
+
+Signal Reconstruction Using Dominant Frequencies:
+
+For each feature:
+
+If necessary, interpolate the original signal.
+
+Remove the linear trend.
+
+Perform FFT on the detrended signal.
+
+Select the top 3 frequencies with the highest power (excluding the zero frequency).
+
+Reconstruct the signal using only these dominant frequencies by inverse FFT.
+
+Add the trend back to the reconstructed signal.
+
+Compare the reconstructed signal to the original one by calculating the R² score.
+
+Plot the original and reconstructed signals for visual comparison.
